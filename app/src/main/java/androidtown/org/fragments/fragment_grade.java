@@ -1,4 +1,4 @@
-package androidtown.org;
+package androidtown.org.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +20,8 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import androidtown.org.R;
 
 /**
  * A simple {@link Fragment} subclass.

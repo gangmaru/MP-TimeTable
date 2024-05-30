@@ -1,53 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context=".LoginActivity">
+    tools:context=".activities.LoginActivity">
 
-    <ImageView
-        android:id="@+id/school_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="130dp"
-        android:layout_gravity="center"
-        android:background="#FFFFFF"
-        android:src="@drawable/school_logo"/>
-    <EditText
-        android:id="@+id/edit_id"
-        android:layout_width="300dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center"
-        android:hint="아이디를 입력하세요" />
-    <EditText
-        android:id="@+id/edit_pw"
-        android:layout_width="300dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center"
-        android:hint="비밀번호를 입력하세요"/>
-    <android.widget.Button
-        android:id="@+id/login_btn"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
-        android:text="로그인"
-        android:textSize="20dp"
-        android:textColor="#FFFFFF"
-        android:background="#004E96"/>
-    <CheckBox
-        android:id="@+id/saved_id_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="saved ID"
-        android:textSize="16dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="2dp"/>
+    <WebView
+        android:id="@+id/loginWebView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package androidtown.org;
+package androidtown.org.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,9 @@ import com.github.tlaabs.timetableview.Schedule;
 import com.github.tlaabs.timetableview.TimetableView;
 
 import java.util.ArrayList;
+
+import androidtown.org.R;
+import androidtown.org.activities.EditActivity;
 
 /**
  * A simple {@link Fragment} subclass.
