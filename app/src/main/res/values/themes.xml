@@ -3,6 +3,11 @@
     <style name="Base.Theme.TermProject2" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Set the status bar background color -->
+        <item name="android:statusBarColor">@android:color/white</item>
+        <!-- Make the status bar icons black (light theme for the status bar) -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.TermProject2" parent="Base.Theme.TermProject2" />
