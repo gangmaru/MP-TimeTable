@@ -1,7 +1,9 @@
 package androidtown.org.listener;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -11,7 +13,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidtown.org.R;
 import androidtown.org.data.type.DataType;
 import androidtown.org.fragments.fragment_qr;
-import androidtown.org.fragments.fragment_timetable;
 
 public class QRButtonListener implements View.OnClickListener,WebDataListener{
 
@@ -22,7 +23,7 @@ public class QRButtonListener implements View.OnClickListener,WebDataListener{
     private final Button setting;
     private final FragmentManager fragmentManager;
 
-    public QRButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager) {
+    public QRButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView) {
         this.welcome = welcome;
         this.timetable = timetable;
         this.grade = grade;

@@ -2,7 +2,7 @@ package androidtown.org.data.type;
 
 public enum DataType {
 
-    GRADE("PTL008"), SCHEDULE("011");
+    GRADE("PTL008"), SCHEDULE("PTL035");
 
     private final String urlNum;
 

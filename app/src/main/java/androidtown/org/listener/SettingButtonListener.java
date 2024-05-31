@@ -1,7 +1,9 @@
 package androidtown.org.listener;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -21,7 +23,7 @@ public class SettingButtonListener implements View.OnClickListener,WebDataListen
     private final Button setting;
     private final FragmentManager fragmentManager;
 
-    public SettingButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager) {
+    public SettingButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView) {
         this.welcome = welcome;
         this.timetable = timetable;
         this.grade = grade;

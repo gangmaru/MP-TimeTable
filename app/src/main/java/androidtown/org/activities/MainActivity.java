@@ -2,7 +2,9 @@ package androidtown.org.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -39,6 +41,16 @@ public class MainActivity extends AppCompatActivity {
         final Button setting = findViewById(R.id.setting_btn);
         final LinearLayout welcome = findViewById(R.id.welcome);
 
+        //DataWebView initialize
+        final WebView dataWebView = findViewById(R.id.dataWebView);
+
+        WebSettings settings = dataWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setSupportMultipleWindows(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+
+        dataWebView.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL035.eps?type=grade&selectedYear=2024&selectedTermCd=10");
+
         //Init fragment
         welcome.setVisibility(View.GONE);
         timetable.setBackgroundColor(Color.parseColor("#40A7B5"));
@@ -52,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Button listeners initialize
         final TimeTableButtonListener timeTableButtonListener
-                = new TimeTableButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager());
+                = new TimeTableButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
         final GradeButtonListener gradeButtonListener
-                = new GradeButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager());
+                = new GradeButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
         final QRButtonListener qrButtonListener
-                = new QRButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager());
+                = new QRButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
         final SettingButtonListener settingButtonListener
-                = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager());
+                = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
 
         //Button listeners add
         timetable.setOnClickListener(timeTableButtonListener);
@@ -66,21 +78,16 @@ public class MainActivity extends AppCompatActivity {
         qr.setOnClickListener(qrButtonListener);
         setting.setOnClickListener(settingButtonListener);
 
-        //DataWebView initialize
-        final WebView dataWebView = findViewById(R.id.dataWebView);
-
-        WebSettings settings = dataWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setSupportMultipleWindows(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
 
         final List<WebDataListener> listenerList = Arrays.asList(
-                timeTableButtonListener, gradeButtonListener, qrButtonListener, settingButtonListener
+                timeTableButtonListener, gradeButtonListener//, qrButtonListener, settingButtonListener
         );
 
-        dataWebView.setWebViewClient(new DataWebViewClient(listenerList));
+        DataWebViewClient webViewClient = new DataWebViewClient(listenerList);
+        dataWebView.setWebViewClient(webViewClient);
         dataWebView.setWebChromeClient(new WebChromeClient());
 
-        dataWebView.addJavascriptInterface(DataWebViewClient.javaScriptInterface,"Android");
+        dataWebView.addJavascriptInterface(webViewClient, "Android");
     }
+
 }
