@@ -10,9 +10,46 @@
 
     <!--데이터 로드용 웹뷰-->
     <WebView
-        android:id="@+id/dataWebView"
+        android:id="@+id/dataWebView1"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView6"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        />
+    <WebView
+        android:id="@+id/dataWebView7"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
         />
 
     <!--버튼 클릭하면 linearlayout사라지고 버튼 누르면 relativelyout로 넘어감-->

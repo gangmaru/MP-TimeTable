@@ -9,6 +9,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,17 +40,16 @@ public class MainActivity extends AppCompatActivity {
         final Button grade = findViewById(R.id.grade_btn);
         final Button qr = findViewById(R.id.qr_btn);
         final Button setting = findViewById(R.id.setting_btn);
+        final ImageView qrImageView = findViewById(R.id.qrCode);
         final LinearLayout welcome = findViewById(R.id.welcome);
 
-        //DataWebView initialize
-        final WebView dataWebView = findViewById(R.id.dataWebView);
-
-        WebSettings settings = dataWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setSupportMultipleWindows(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
-
-        dataWebView.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL035.eps?type=grade&selectedYear=2024&selectedTermCd=10");
+        final WebView dataWebView1 = findViewById(R.id.dataWebView1);
+        final WebView dataWebView2 = findViewById(R.id.dataWebView2);
+        final WebView dataWebView3 = findViewById(R.id.dataWebView3);
+        final WebView dataWebView4 = findViewById(R.id.dataWebView4);
+        final WebView dataWebView5 = findViewById(R.id.dataWebView5);
+        final WebView dataWebView6 = findViewById(R.id.dataWebView6);
+        final WebView dataWebView7 = findViewById(R.id.dataWebView7);
 
         //Init fragment
         welcome.setVisibility(View.GONE);
@@ -64,30 +64,40 @@ public class MainActivity extends AppCompatActivity {
 
         //Button listeners initialize
         final TimeTableButtonListener timeTableButtonListener
-                = new TimeTableButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
+                = new TimeTableButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(),
+                dataWebView1, dataWebView2, dataWebView3, dataWebView4, dataWebView5, dataWebView6, dataWebView7);
         final GradeButtonListener gradeButtonListener
-                = new GradeButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
+                = new GradeButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1, dataWebView2);
         final QRButtonListener qrButtonListener
-                = new QRButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
+                = new QRButtonListener(welcome, timetable, grade, qr, setting, qrImageView, getSupportFragmentManager(), dataWebView1);
         final SettingButtonListener settingButtonListener
-                = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView);
+                = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1);
+
+        //DataWebView initialize
+        webViewInit(
+                Arrays.asList(dataWebView1, dataWebView2, dataWebView3, dataWebView4, dataWebView5, dataWebView6, dataWebView7),
+                Arrays.asList(timeTableButtonListener, gradeButtonListener, qrButtonListener));
 
         //Button listeners add
         timetable.setOnClickListener(timeTableButtonListener);
         grade.setOnClickListener(gradeButtonListener);
         qr.setOnClickListener(qrButtonListener);
         setting.setOnClickListener(settingButtonListener);
+    }
 
+    private void webViewInit(List<WebView> webViewList, List<WebDataListener> listenerList) {
+        webViewList.forEach(view -> {
+            WebSettings settings = view.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setSupportMultipleWindows(true);
+            settings.setJavaScriptCanOpenWindowsAutomatically(true);
 
-        final List<WebDataListener> listenerList = Arrays.asList(
-                timeTableButtonListener, gradeButtonListener//, qrButtonListener, settingButtonListener
-        );
+            DataWebViewClient webViewClient = new DataWebViewClient(listenerList);
+            view.setWebViewClient(webViewClient);
+            view.setWebChromeClient(new WebChromeClient());
 
-        DataWebViewClient webViewClient = new DataWebViewClient(listenerList);
-        dataWebView.setWebViewClient(webViewClient);
-        dataWebView.setWebChromeClient(new WebChromeClient());
-
-        dataWebView.addJavascriptInterface(webViewClient, "Android");
+            view.addJavascriptInterface(webViewClient, "Android");
+        });
     }
 
 }

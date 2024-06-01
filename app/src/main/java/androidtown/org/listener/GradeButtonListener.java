@@ -1,7 +1,6 @@
 package androidtown.org.listener;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -10,7 +9,15 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import androidtown.org.R;
+import androidtown.org.data.Grade;
+import androidtown.org.data.Graduate;
 import androidtown.org.data.type.DataType;
 import androidtown.org.fragments.fragment_grade;
 
@@ -23,8 +30,12 @@ public class GradeButtonListener implements View.OnClickListener, WebDataListene
     private final Button setting;
     private final FragmentManager fragmentManager;
     private final WebView dataWebView;
+    private final WebView subWebView;
 
-    public GradeButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView) {
+    private final Map<String, Grade> gradeMap = new HashMap<>();
+    private Graduate graduate = new Graduate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+    public GradeButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView, WebView subWebView) {
         this.welcome = welcome;
         this.timetable = timetable;
         this.grade = grade;
@@ -32,18 +43,64 @@ public class GradeButtonListener implements View.OnClickListener, WebDataListene
         this.setting = setting;
         this.fragmentManager = fragmentManager;
         this.dataWebView = dataWebView;
+        this.subWebView = subWebView;
     }
 
 
     @Override
     public void receive(String data, DataType type) {
-        if (type != DataType.GRADE) return;
-        Log.d("test", "data type : " + type + " , data : " + data);
+        switch (type) {
+            case GRADE: {
+                //Data parsing
+                JsonObject json = JsonParser.parseString(data).getAsJsonObject();
+                json.get("grade_list")
+                        .getAsJsonArray()
+                        .forEach(
+                                element -> {
+                                    JsonObject object = element.getAsJsonObject();
+                                    Grade grade = new Grade(
+                                            object.get("subject_nm").getAsString(),
+                                            object.get("get_rank").getAsString(),
+                                            object.get("nvl(a.score,0)").getAsString(),
+                                            object.get("year").getAsString(),
+                                            object.get("hakgi").getAsString(),
+                                            object.get("isunm").getAsString(),
+                                            object.get("credit").getAsString()
+                                    );
+                                    gradeMap.put(
+                                            object.get("a.subject_cd||a.class_num").getAsString(),
+                                            grade);
+                                }
+                        );
+                //UI update
+                break;
+            }
+            case GRADUATE: {
+                JsonObject json = JsonParser.parseString(data).getAsJsonObject();
+                JsonObject object = json.get("graduatedIsuList").getAsJsonArray().get(2).getAsJsonObject();
+                graduate = new Graduate(
+                        object.get("jol_credit").getAsInt(),
+                        object.get("majbas_credit").getAsInt(),
+                        object.get("majsel_credit").getAsInt(),
+                        object.get("culess_credit").getAsInt(),
+                        object.get("comb_cul_tot_credit").getAsInt(),
+                        object.get("cul1_credit").getAsInt(),
+                        object.get("cul2_credit").getAsInt(),
+                        object.get("cul3_credit").getAsInt(),
+                        object.get("cul4_credit").getAsInt(),
+                        object.get("cul5_credit").getAsInt(),
+                        object.get("cul6_credit").getAsInt(),
+                        object.get("culbranch_credit").getAsInt()
+                );
+                break;
+            }
+        }
     }
 
     @Override
     public void onClick(View view) {
         dataWebView.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL008.eps?type=grade&selectedYear=2023&selectedSmtRcd=2학기");
+        subWebView.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL031.eps");
 
         welcome.setVisibility(View.GONE);
         timetable.setBackgroundColor(Color.parseColor("#004E96"));
