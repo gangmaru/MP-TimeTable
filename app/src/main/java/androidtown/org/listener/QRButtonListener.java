@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import androidtown.org.R;
+import androidtown.org.data.Student;
 import androidtown.org.data.type.DataType;
 import androidtown.org.fragments.fragment_qr;
 
@@ -30,45 +31,56 @@ public class QRButtonListener implements View.OnClickListener, WebDataListener {
     private final Button grade;
     private final Button qr;
     private final Button setting;
-    private final ImageView qrImageView;
     private final FragmentManager fragmentManager;
-    private final WebView dataWebView;
+    private final WebView dataWebView1;
+    private final WebView dataWebView2;
+    private final Student student = new Student();
 
-    public QRButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, ImageView qrImageView, FragmentManager fragmentManager, WebView dataWebView) {
+    public QRButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView1, WebView dataWebView2) {
         this.welcome = welcome;
         this.timetable = timetable;
         this.grade = grade;
         this.qr = qr;
         this.setting = setting;
-        this.qrImageView = qrImageView;
         this.fragmentManager = fragmentManager;
-        this.dataWebView = dataWebView;
+        this.dataWebView1 = dataWebView1;
+        this.dataWebView2 = dataWebView2;
     }
 
 
     @Override
     public void receive(String data, DataType type) {
-        if (type != DataType.QR) return;
-        JsonObject json = JsonParser.parseString(data).getAsJsonObject();
-        JsonObject object = json.get("userInfoList")
-                .getAsJsonArray().get(0)
-                .getAsJsonObject();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        try {
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(
-                    "m" + object.get("member_no").getAsString() + dateFormat.format(new Date()),
-                    BarcodeFormat.QR_CODE, 200, 200);
-            qrImageView.setImageBitmap(bitmap);
-            //TODO 안뜸 데이터는 완료
-        } catch (Exception ignored) {
-
+        switch (type) {
+            case DEPARTMENT: {
+                JsonObject json = JsonParser.parseString(data).getAsJsonObject();
+                JsonObject object = json.get("eduYear_list")
+                        .getAsJsonArray().get(0)
+                        .getAsJsonObject();
+                String department = object.get("kwuhs.f_com001_nm('',a.cls_maj_cd)").getAsString();
+                student.setDepartment(department);
+                break;
+            }
+            case NAME: {
+                JsonObject json = JsonParser.parseString(data).getAsJsonObject();
+                JsonObject object = json.get("scholarship_list")
+                        .getAsJsonArray().get(0)
+                        .getAsJsonObject();
+                String name = object.get("std_nm").getAsString();
+                String studentNumber = object.get("std_no").getAsString();
+                student.setName(name);
+                student.setStudentNumber(studentNumber);
+                break;
+            }
         }
     }
 
     @Override
     public void onClick(View view) {
-        dataWebView.loadUrl("https://portal.gachon.ac.kr/gc/common/UserInfoChange.eps");
+        dataWebView1.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL024.eps?type=year_hakginm");
+        //std_nm 이름
+        //std_no 학번
+        dataWebView2.loadUrl("https://portal.gachon.ac.kr/gc/portlet/PTL011.eps?grade=1");
+        //kwuhs.f_com001_nm('',a.cls_maj_cd) -> 학과
 
         welcome.setVisibility(View.GONE);
         timetable.setBackgroundColor(Color.parseColor("#004E96"));
@@ -77,7 +89,11 @@ public class QRButtonListener implements View.OnClickListener, WebDataListener {
         setting.setBackgroundColor(Color.parseColor("#004E96"));
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment, new fragment_qr());
+        transaction.replace(R.id.fragment, new fragment_qr(this));
         transaction.commit();
+    }
+
+    public Student getStudent() {
+        return student;
     }
 }

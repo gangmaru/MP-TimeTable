@@ -5,7 +5,8 @@ public enum DataType {
     GRADE("PTL008"),
     SCHEDULE("PTL014"),
     GRADUATE("PTL031"),
-    QR("https://portal.gachon.ac.kr/gc/common/UserInfoChange.eps");
+    DEPARTMENT("PTL011"),
+    NAME("PTL024");
 
     private final String urlNum;
 

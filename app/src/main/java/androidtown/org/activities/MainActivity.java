@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         final GradeButtonListener gradeButtonListener
                 = new GradeButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1, dataWebView2);
         final QRButtonListener qrButtonListener
-                = new QRButtonListener(welcome, timetable, grade, qr, setting, qrImageView, getSupportFragmentManager(), dataWebView1);
+                = new QRButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1, dataWebView2);
         final SettingButtonListener settingButtonListener
                 = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1);
 
