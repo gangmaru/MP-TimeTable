@@ -33,7 +33,7 @@ public class GradeButtonListener implements View.OnClickListener, WebDataListene
     private final WebView subWebView;
 
     private final Map<String, Grade> gradeMap = new HashMap<>();
-    private Graduate graduate = new Graduate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    private final Graduate graduate = new Graduate();
 
     public GradeButtonListener(LinearLayout welcome, Button timetable, Button grade, Button qr, Button setting, FragmentManager fragmentManager, WebView dataWebView, WebView subWebView) {
         this.welcome = welcome;
@@ -78,20 +78,18 @@ public class GradeButtonListener implements View.OnClickListener, WebDataListene
             case GRADUATE: {
                 JsonObject json = JsonParser.parseString(data).getAsJsonObject();
                 JsonObject object = json.get("graduatedIsuList").getAsJsonArray().get(2).getAsJsonObject();
-                graduate = new Graduate(
-                        object.get("jol_credit").getAsInt(),
-                        object.get("majbas_credit").getAsInt(),
-                        object.get("majsel_credit").getAsInt(),
-                        object.get("culess_credit").getAsInt(),
-                        object.get("comb_cul_tot_credit").getAsInt(),
-                        object.get("cul1_credit").getAsInt(),
-                        object.get("cul2_credit").getAsInt(),
-                        object.get("cul3_credit").getAsInt(),
-                        object.get("cul4_credit").getAsInt(),
-                        object.get("cul5_credit").getAsInt(),
-                        object.get("cul6_credit").getAsInt(),
-                        object.get("culbranch_credit").getAsInt()
-                );
+                graduate.setJol_credit(object.get("jol_credit").getAsInt());
+                graduate.setMajbas_credit(object.get("majbas_credit").getAsInt());
+                graduate.setMajsel_credit(object.get("majsel_credit").getAsInt());
+                graduate.setCuless_credit(object.get("culess_credit").getAsInt());
+                graduate.setComb_cul_tot_credit(object.get("comb_cul_tot_credit").getAsInt());
+                graduate.setCul1_credit(object.get("cul1_credit").getAsInt());
+                graduate.setCul2_credit(object.get("cul2_credit").getAsInt());
+                graduate.setCul3_credit(object.get("cul3_credit").getAsInt());
+                graduate.setCul4_credit(object.get("cul4_credit").getAsInt());
+                graduate.setCul5_credit(object.get("cul5_credit").getAsInt());
+                graduate.setCul6_credit(object.get("cul6_credit").getAsInt());
+                graduate.setCulbranch_credit(object.get("culbranch_credit").getAsInt());
                 break;
             }
         }
@@ -109,7 +107,15 @@ public class GradeButtonListener implements View.OnClickListener, WebDataListene
         setting.setBackgroundColor(Color.parseColor("#004E96"));
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment, new fragment_grade());
+        transaction.replace(R.id.fragment, new fragment_grade(this));
         transaction.commit();
+    }
+
+    public Graduate getGraduate() {
+        return graduate;
+    }
+
+    public Map<String, Grade> getGradeMap() {
+        return gradeMap;
     }
 }
