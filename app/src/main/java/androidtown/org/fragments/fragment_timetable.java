@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +22,8 @@ import java.util.ArrayList;
 
 import androidtown.org.R;
 import androidtown.org.activities.EditActivity;
+import androidtown.org.listener.TimeTableButtonListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link fragment_timetable#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class fragment_timetable extends Fragment implements View.OnClickListener {
 
     public static final int REQUEST_ADD = 1;
@@ -34,49 +31,16 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
 
     private Context context;
 
-    private Button addBtn;
-    private Button clearBtn;
-    private Button saveBtn;
-    private Button loadBtn;
     private TimetableView timetable;
+    private final TimeTableButtonListener listener;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public fragment_timetable() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment fragment_timetable.
-     */
-    public static fragment_timetable newInstance(String param1, String param2) {
-        fragment_timetable fragment = new fragment_timetable();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public fragment_timetable(TimeTableButtonListener listener) {
+        this.listener = listener;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -90,10 +54,10 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
     private void init(View view) {
         this.context = getActivity();
 
-        addBtn = view.findViewById(R.id.add_btn);
-        clearBtn = view.findViewById(R.id.clear_btn);
-        saveBtn = view.findViewById(R.id.save_btn);
-        loadBtn = view.findViewById(R.id.load_btn);
+        Button addBtn = view.findViewById(R.id.add_btn);
+        Button clearBtn = view.findViewById(R.id.clear_btn);
+        Button saveBtn = view.findViewById(R.id.save_btn);
+        Button loadBtn = view.findViewById(R.id.load_btn);
         timetable = view.findViewById(R.id.timetable);
 
         addBtn.setOnClickListener(this);
@@ -101,19 +65,23 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         saveBtn.setOnClickListener(this);
         loadBtn.setOnClickListener(this);
 
+        new Handler().postDelayed(() -> {
+            ArrayList<Schedule> schedules = new ArrayList<>(listener.getScheduleSet());
+            timetable.add(schedules);
+
+
+        }, 300);
+
         initView();
     }
 
     private void initView() {
-        timetable.setOnStickerSelectEventListener(new TimetableView.OnStickerSelectedListener() {
-            @Override
-            public void OnStickerSelected(int idx, ArrayList<Schedule> schedules) {
-                Intent i = new Intent(context, EditActivity.class);
-                i.putExtra("mode", REQUEST_EDIT);
-                i.putExtra("idx", idx);
-                i.putExtra("schedules", schedules);
-                startActivityForResult(i, REQUEST_EDIT);
-            }
+        timetable.setOnStickerSelectEventListener((idx, schedules) -> {
+            Intent i = new Intent(context, EditActivity.class);
+            i.putExtra("mode", REQUEST_EDIT);
+            i.putExtra("idx", idx);
+            i.putExtra("schedules", schedules);
+            startActivityForResult(i, REQUEST_EDIT);
         });
     }
 

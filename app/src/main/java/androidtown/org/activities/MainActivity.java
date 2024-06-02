@@ -2,14 +2,11 @@ package androidtown.org.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +24,6 @@ import androidtown.org.listener.SettingButtonListener;
 import androidtown.org.listener.TimeTableButtonListener;
 import androidtown.org.listener.WebDataListener;
 import androidtown.org.webclient.DataWebViewClient;
-import androidtown.org.webclient.LoginWebViewClient;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -40,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         final Button grade = findViewById(R.id.grade_btn);
         final Button qr = findViewById(R.id.qr_btn);
         final Button setting = findViewById(R.id.setting_btn);
-        final ImageView qrImageView = findViewById(R.id.qrCode);
         final LinearLayout welcome = findViewById(R.id.welcome);
 
         final WebView dataWebView1 = findViewById(R.id.dataWebView1);
@@ -50,17 +45,6 @@ public class MainActivity extends AppCompatActivity {
         final WebView dataWebView5 = findViewById(R.id.dataWebView5);
         final WebView dataWebView6 = findViewById(R.id.dataWebView6);
         final WebView dataWebView7 = findViewById(R.id.dataWebView7);
-
-        //Init fragment
-        welcome.setVisibility(View.GONE);
-        timetable.setBackgroundColor(Color.parseColor("#40A7B5"));
-        grade.setBackgroundColor(Color.parseColor("#004E96"));
-        qr.setBackgroundColor(Color.parseColor("#004E96"));
-        setting.setBackgroundColor(Color.parseColor("#004E96"));
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment, new fragment_timetable());
-        transaction.commit();
 
         //Button listeners initialize
         final TimeTableButtonListener timeTableButtonListener
@@ -72,6 +56,17 @@ public class MainActivity extends AppCompatActivity {
                 = new QRButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1, dataWebView2);
         final SettingButtonListener settingButtonListener
                 = new SettingButtonListener(welcome, timetable, grade, qr, setting, getSupportFragmentManager(), dataWebView1);
+
+        //Init fragment
+        welcome.setVisibility(View.GONE);
+        timetable.setBackgroundColor(Color.parseColor("#40A7B5"));
+        grade.setBackgroundColor(Color.parseColor("#004E96"));
+        qr.setBackgroundColor(Color.parseColor("#004E96"));
+        setting.setBackgroundColor(Color.parseColor("#004E96"));
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment, new fragment_timetable(timeTableButtonListener));
+        transaction.commit();
 
         //DataWebView initialize
         webViewInit(

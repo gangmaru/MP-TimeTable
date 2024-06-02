@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.github.tlaabs.timetableview.Schedule;
+import com.github.tlaabs.timetableview.Time;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -16,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import androidtown.org.R;
-import androidtown.org.data.Schedule;
 import androidtown.org.data.type.DataType;
 import androidtown.org.fragments.fragment_timetable;
 
@@ -65,13 +66,19 @@ public class TimeTableButtonListener implements View.OnClickListener, WebDataLis
                 .forEach(
                         element -> {
                             JsonObject object = element.getAsJsonObject();
-                            Schedule schedule = new Schedule(
-                                    object.get("subject_nm_kor").getAsString(),
-                                    object.get("class_day").getAsString(),
-                                    object.get("start_time").getAsString(),
-                                    object.get("end_time").getAsString(),
-                                    object.get("loc_nm").getAsString()
-                            );
+                            Schedule schedule = new Schedule();
+                            schedule.setClassTitle(object.get("subject_nm_kor").getAsString()); // sets subject
+                            schedule.setDay(dayToInt(object.get("class_day").getAsString()));
+                            schedule.setClassPlace(object.get("loc_nm").getAsString()); // sets place
+                            String start = object.get("start_time").getAsString();
+                            String end = object.get("end_time").getAsString();
+                            int h = Integer.parseInt(start.substring(0, 2));
+                            int m = Integer.parseInt(start.substring(2));
+                            schedule.setStartTime(new Time(h, m)); // sets the beginning of class time (hour,minute)
+                            h = Integer.parseInt(end.substring(0, 2));
+                            m = Integer.parseInt(end.substring(2));
+                            schedule.setEndTime(new Time(h, m)); // sets the end of class time (hour,minute)
+
                             scheduleSet.add(schedule);
                         }
                 );
@@ -95,7 +102,31 @@ public class TimeTableButtonListener implements View.OnClickListener, WebDataLis
         setting.setBackgroundColor(Color.parseColor("#004E96"));
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment, new fragment_timetable());
+        transaction.replace(R.id.fragment, new fragment_timetable(this));
         transaction.commit();
+    }
+
+    public Set<Schedule> getScheduleSet() {
+        return scheduleSet;
+    }
+
+    private int dayToInt(String day){
+        switch(day){
+            case "월":
+                return 0;
+            case "화":
+                return 1;
+            case "수":
+                return 2;
+            case "목":
+                return 3;
+            case "금":
+                return 4;
+            case "토":
+                return 5;
+            case "일":
+                return 6;
+        }
+        return 7;
     }
 }
