@@ -1,9 +1,10 @@
-package androidtown.org;
+package androidtown.org.fragments;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +20,11 @@ import com.github.tlaabs.timetableview.Time;
 import com.github.tlaabs.timetableview.TimetableView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link fragment_timetable#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidtown.org.R;
+import androidtown.org.activities.EditActivity;
+import androidtown.org.listener.TimeTableButtonListener;
+
 public class fragment_timetable extends Fragment implements View.OnClickListener {
 
     public static final int REQUEST_ADD = 1;
@@ -34,49 +32,16 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
 
     private Context context;
 
-    private Button addBtn;
-    private Button clearBtn;
-    private Button saveBtn;
-    private Button loadBtn;
     private TimetableView timetable;
+    private final TimeTableButtonListener listener;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public fragment_timetable() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment fragment_timetable.
-     */
-    public static fragment_timetable newInstance(String param1, String param2) {
-        fragment_timetable fragment = new fragment_timetable();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public fragment_timetable(TimeTableButtonListener timeTableButtonListener) {
+        this.listener = timeTableButtonListener;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -90,10 +55,10 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
     private void init(View view) {
         this.context = getActivity();
 
-        addBtn = view.findViewById(R.id.add_btn);
-        clearBtn = view.findViewById(R.id.clear_btn);
-        saveBtn = view.findViewById(R.id.save_btn);
-        loadBtn = view.findViewById(R.id.load_btn);
+        Button addBtn = view.findViewById(R.id.add_btn);
+        Button clearBtn = view.findViewById(R.id.clear_btn);
+        Button saveBtn = view.findViewById(R.id.save_btn);
+        Button loadBtn = view.findViewById(R.id.load_btn);
         timetable = view.findViewById(R.id.timetable);
 
         addBtn.setOnClickListener(this);
@@ -101,19 +66,21 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         saveBtn.setOnClickListener(this);
         loadBtn.setOnClickListener(this);
 
+        new Handler().postDelayed(() -> {
+            ArrayList<Schedule> schedules = new ArrayList<>(listener.getScheduleSet());
+            timetable.add(schedules);
+        }, 300);
+
         initView();
     }
 
     private void initView() {
-        timetable.setOnStickerSelectEventListener(new TimetableView.OnStickerSelectedListener() {
-            @Override
-            public void OnStickerSelected(int idx, ArrayList<Schedule> schedules) {
-                Intent i = new Intent(context, EditActivity.class);
-                i.putExtra("mode", REQUEST_EDIT);
-                i.putExtra("idx", idx);
-                i.putExtra("schedules", schedules);
-                startActivityForResult(i, REQUEST_EDIT);
-            }
+        timetable.setOnStickerSelectEventListener((idx, schedules) -> {
+            Intent i = new Intent(context, EditActivity.class);
+            i.putExtra("mode", REQUEST_EDIT);
+            i.putExtra("idx", idx);
+            i.putExtra("schedules", schedules);
+            startActivityForResult(i, REQUEST_EDIT);
         });
     }
 
@@ -171,17 +138,20 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         timetable.load(savedData);
         Toast.makeText(context, "loaded!", Toast.LENGTH_SHORT).show();
     }
-    private void checkContinueCourse(){
+
+    private void checkContinueCourse() {
         ArrayList<Schedule> tempSchedule = timetable.getAllSchedulesInStickers();
         sortSchedules(tempSchedule);
-        boolean checkValid = false;
-        String startPlace, endPlace, sDay, result;
-        result = "";
+        String startPlace;
+        String endPlace;
+        String sDay;
+        StringBuilder result;
+        result = new StringBuilder();
         int day;
-        for (int i = 0; i < tempSchedule.size(); i++){
-            for (int j = i; j < tempSchedule.size(); j++){
+        for (int i = 0; i < tempSchedule.size(); i++) {
+            for (int j = i; j < tempSchedule.size(); j++) {
                 day = tempSchedule.get(i).getDay();
-                switch (day){
+                switch (day) {
                     case 0:
                         sDay = "월요일";
                         break;
@@ -202,52 +172,57 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
                         break;
 
                 }
-                if (day == tempSchedule.get(j).getDay()){
+                if (day == tempSchedule.get(j).getDay()) {
                     // 먼저 듣는 강의를 먼저 등록한 경우
                     // i: 먼저 듣는 강의, j: i 다음 들을 강의
-                    if (checkTime(tempSchedule.get(i).getEndTime(), tempSchedule.get(j).getStartTime())){
+                    if (checkTime(tempSchedule.get(i).getEndTime(), tempSchedule.get(j).getStartTime())) {
                         // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
-                        try{
+                        try {
                             startPlace = tempSchedule.get(i).getClassPlace().substring(0, tempSchedule.get(i).getClassPlace().indexOf("-"));
                         }
                         //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
-                        catch (Exception e){
+                        catch (Exception e) {
                             startPlace = tempSchedule.get(i).getClassPlace();
                         }
 
                         // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
-                        try{
+                        try {
                             endPlace = tempSchedule.get(j).getClassPlace().substring(0, tempSchedule.get(j).getClassPlace().indexOf("-"));
                         }
                         //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
-                        catch (Exception e){
+                        catch (Exception e) {
                             endPlace = tempSchedule.get(j).getClassPlace();
                         }
-                        if (!checkPlaceAvailable(startPlace, endPlace)){
-                            result = result + sDay + "에 듣는 " + tempSchedule.get(i).getClassTitle() + "과(와) "+ tempSchedule.get(j).getClassTitle()
-                                    + "은(는) 연강이 불가능합니다.\n";
+                        if (!checkPlaceAvailable(startPlace, endPlace)) {
+                            result.append(sDay)
+                                    .append("에 듣는 ")
+                                    .append(tempSchedule.get(i).getClassTitle())
+                                    .append("과(와) ")
+                                    .append(tempSchedule.get(j).getClassTitle())
+                                    .append("은(는) 연강이 불가능합니다.\n");
                         }
                     }
                 }
             }
         }
-        if (result.isEmpty())
+        if (result.length() == 0)
             Toast.makeText(context, "연강하는데에 지장이 가는 강의가 없습니다.", Toast.LENGTH_LONG).show();
         else
-            Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show();
     }
-    private boolean checkTime(Time a, Time b){
+
+    private boolean checkTime(Time a, Time b) {
         Integer x1 = a.getHour();
         Integer x2 = a.getMinute();
         int y1 = b.getHour();
         int y2 = b.getMinute();
-        if (x1.equals(y1 - 1)){
-            if (x2.equals(y2 + 50))
-                return true;
+        if (x1.equals(y1 - 1)) {
+            return x2.equals(y2 + 50);
         }
         return false;
     }
-    private boolean checkPlaceAvailable(String start, String end){
+
+    private boolean checkPlaceAvailable(String start, String end) {
         int istart, iend;
         // placeTable[출발 장소][도착 장소] 연강 가능 여부 (카카오맵 기준 도보 8분 이상일 경우 false 처리했습니다.)
         boolean[][] placeTable = {{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true},
@@ -365,25 +340,23 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         }
         return placeTable[istart][iend];
     }
+
     private void sortSchedules(ArrayList<Schedule> schedules) {
-        Collections.sort(schedules, new Comparator<Schedule>() {
-            @Override
-            public int compare(Schedule s1, Schedule s2) {
-                int dayComparison = Integer.compare(s1.getDay(), s2.getDay());
-                if (dayComparison != 0) {
-                    return dayComparison;
-                }
-
-                Time startTime1 = s1.getStartTime();
-                Time startTime2 = s2.getStartTime();
-
-                int hourComparison = Integer.compare(startTime1.getHour(), startTime2.getHour());
-                if (hourComparison != 0) {
-                    return hourComparison;
-                }
-
-                return Integer.compare(startTime1.getMinute(), startTime2.getMinute());
+        schedules.sort((s1, s2) -> {
+            int dayComparison = Integer.compare(s1.getDay(), s2.getDay());
+            if (dayComparison != 0) {
+                return dayComparison;
             }
+
+            Time startTime1 = s1.getStartTime();
+            Time startTime2 = s2.getStartTime();
+
+            int hourComparison = Integer.compare(startTime1.getHour(), startTime2.getHour());
+            if (hourComparison != 0) {
+                return hourComparison;
+            }
+
+            return Integer.compare(startTime1.getMinute(), startTime2.getMinute());
         });
     }
 }

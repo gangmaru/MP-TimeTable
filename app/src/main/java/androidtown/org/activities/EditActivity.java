@@ -1,4 +1,4 @@
-package androidtown.org;
+package androidtown.org.activities;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -18,6 +18,9 @@ import com.github.tlaabs.timetableview.Schedule;
 import com.github.tlaabs.timetableview.Time;
 
 import java.util.ArrayList;
+
+import androidtown.org.R;
+import androidtown.org.fragments.fragment_timetable;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int RESULT_OK_ADD = 1;
