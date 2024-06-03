@@ -19,6 +19,8 @@ import com.github.tlaabs.timetableview.Time;
 import com.github.tlaabs.timetableview.TimetableView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -127,7 +129,6 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
             saveByPreference(timetable.createSaveData());
         } else if (v.getId() == R.id.load_btn) {
             loadSavedData();
-            checkContinueCourse();
         }
     }
 
@@ -172,6 +173,7 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
     }
     private void checkContinueCourse(){
         ArrayList<Schedule> tempSchedule = timetable.getAllSchedulesInStickers();
+        sortSchedules(tempSchedule);
         boolean checkValid = false;
         String startPlace, endPlace, sDay, result;
         result = "";
@@ -226,31 +228,6 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
                                     + "은(는) 연강이 불가능합니다.\n";
                         }
                     }
-                    // 다음 들을 강의를 먼저 등록한 경우
-                    // j: 먼저 들을 강의, i: i 다음에 들을 강의
-                    else if (checkTime(tempSchedule.get(i).getStartTime(), tempSchedule.get(j).getEndTime())) {
-                        // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
-                        try {
-                            endPlace = tempSchedule.get(i).getClassPlace().substring(0, tempSchedule.get(i).getClassPlace().indexOf("-"));
-                        }
-                        //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
-                        catch (Exception e) {
-                            endPlace = tempSchedule.get(i).getClassPlace();
-                        }
-
-                        // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
-                        try {
-                            startPlace = tempSchedule.get(j).getClassPlace().substring(0, tempSchedule.get(j).getClassPlace().indexOf("-"));
-                        }
-                        //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
-                        catch (Exception e) {
-                            startPlace = tempSchedule.get(j).getClassPlace();
-                        }
-                        if (!checkPlaceAvailable(startPlace, endPlace)) {
-                            result = result + sDay + "에 듣는 " + tempSchedule.get(i).getClassTitle() + "과(와) " + tempSchedule.get(j).getClassTitle()
-                                    + "은(는) 연강이 불가능합니다.\n";
-                        }
-                    }
                 }
             }
         }
@@ -262,10 +239,10 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
     private boolean checkTime(Time a, Time b){
         Integer x1 = a.getHour();
         Integer x2 = a.getMinute();
-        Integer y1 = b.getHour();
-        Integer y2 = b.getMinute();
-        if (x1.equals(y1)){
-            if (x2.equals(y2))
+        int y1 = b.getHour();
+        int y2 = b.getMinute();
+        if (x1.equals(y1 - 1)){
+            if (x2.equals(y2 + 50))
                 return true;
         }
         return false;
@@ -387,5 +364,26 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
                 return true;
         }
         return placeTable[istart][iend];
+    }
+    private void sortSchedules(ArrayList<Schedule> schedules) {
+        Collections.sort(schedules, new Comparator<Schedule>() {
+            @Override
+            public int compare(Schedule s1, Schedule s2) {
+                int dayComparison = Integer.compare(s1.getDay(), s2.getDay());
+                if (dayComparison != 0) {
+                    return dayComparison;
+                }
+
+                Time startTime1 = s1.getStartTime();
+                Time startTime2 = s2.getStartTime();
+
+                int hourComparison = Integer.compare(startTime1.getHour(), startTime2.getHour());
+                if (hourComparison != 0) {
+                    return hourComparison;
+                }
+
+                return Integer.compare(startTime1.getMinute(), startTime2.getMinute());
+            }
+        });
     }
 }
