@@ -19,9 +19,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class FragmentQR(private val listener: QRButtonListener) : Fragment() {
-    private var tvCountdown: TextView? = null
-    private var qrCode: ImageView? = null
-    private var countDownTimer: CountDownTimer? = null
+    private lateinit var tvCountdown: TextView
+    private lateinit var qrCode: ImageView
+    private lateinit var countDownTimer: CountDownTimer
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_qr, container, false)
@@ -37,7 +37,7 @@ class FragmentQR(private val listener: QRButtonListener) : Fragment() {
             department.text = student.department
             name.text = student.name
             stdNo.text = student.studentNumber
-            qrCode!!.setImageBitmap(createQRCode())
+            qrCode.setImageBitmap(createQRCode())
         }, 500)
         startTimer()
 
@@ -53,21 +53,19 @@ class FragmentQR(private val listener: QRButtonListener) : Fragment() {
                 val minutes = (millisUntilFinished / 1000).toInt() / 60
                 val seconds = (millisUntilFinished / 1000).toInt() % 60
                 val timeLeftFormatted = String.format("%02d:%02d", minutes, seconds)
-                tvCountdown!!.text = timeLeftFormatted
+                tvCountdown.text = timeLeftFormatted
             }
 
             override fun onFinish() {
-                tvCountdown!!.text = "00:00"
+                tvCountdown.text = "00:00"
             }
         }.start()
     }
 
     private fun refreshFragment() {
-        if (countDownTimer != null) {
-            countDownTimer!!.cancel()
-            qrCode!!.setImageBitmap(createQRCode())
-            startTimer()
-        }
+        countDownTimer.cancel()
+        qrCode.setImageBitmap(createQRCode())
+        startTimer()
         val ft = requireFragmentManager().beginTransaction()
         ft.detach(this).attach(this).commit()
     }

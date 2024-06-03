@@ -16,9 +16,8 @@ import com.google.gson.JsonParser
 import java.util.function.Consumer
 
 class GradeButtonListener(private val welcome: LinearLayout, private val timetable: Button, private val grade: Button, private val qr: Button, private val setting: Button, private val fragmentManager: FragmentManager, private val dataWebView: WebView, private val subWebView: WebView) : View.OnClickListener, WebDataListener {
-    private val gradeMap: MutableMap<String, Grade> = HashMap()
+    val gradeMap: MutableMap<String, Grade> = HashMap()
     val graduate: Graduate = Graduate()
-
 
     override fun receive(data: String?, type: DataType?) {
         when (type) {

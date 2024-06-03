@@ -19,9 +19,9 @@ import com.github.tlaabs.timetableview.Time
 import com.github.tlaabs.timetableview.TimetableView
 
 class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragment(), View.OnClickListener {
-    private var context: Context? = null
+    private lateinit var context: Context
 
-    private var timetable: TimetableView? = null
+    private lateinit var timetable: TimetableView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,7 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
     }
 
     private fun init(view: View) {
-        this.context = activity
+        this.context = activity!!
 
         val addBtn = view.findViewById<Button>(R.id.add_btn)
         val clearBtn = view.findViewById<Button>(R.id.clear_btn)
@@ -50,7 +50,7 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
 
         Handler().postDelayed({
             val schedules = ArrayList(listener.scheduleSet)
-            timetable!!.add(schedules)
+            timetable.add(schedules)
             checkContinueCourse()
         }, 500)
 
@@ -58,7 +58,7 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
     }
 
     private fun initView() {
-        timetable!!.setOnStickerSelectEventListener { idx: Int, schedules: ArrayList<Schedule?>? ->
+        timetable.setOnStickerSelectEventListener { idx: Int, schedules: ArrayList<Schedule?>? ->
             val i = Intent(context, EditActivity::class.java)
             i.putExtra("mode", REQUEST_EDIT)
             i.putExtra("idx", idx)
@@ -73,9 +73,9 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
             i.putExtra("mode", REQUEST_ADD)
             startActivityForResult(i, REQUEST_ADD)
         } else if (v.id == R.id.clear_btn) {
-            timetable!!.removeAll()
+            timetable.removeAll()
         } else if (v.id == R.id.save_btn) {
-            saveByPreference(timetable!!.createSaveData())
+            saveByPreference(timetable.createSaveData())
         } else if (v.id == R.id.load_btn) {
             loadSavedData()
         }
@@ -86,16 +86,16 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
         when (requestCode) {
             REQUEST_ADD -> if (resultCode == EditActivity.RESULT_OK_ADD) {
                 val item = data!!.getSerializableExtra("schedules") as ArrayList<Schedule>?
-                timetable!!.add(item)
+                timetable.add(item)
             }
 
             REQUEST_EDIT -> if (resultCode == EditActivity.RESULT_OK_EDIT) {
                 val idx = data!!.getIntExtra("idx", -1)
                 val item = data.getSerializableExtra("schedules") as ArrayList<Schedule>?
-                timetable!!.edit(idx, item)
+                timetable.edit(idx, item)
             } else if (resultCode == EditActivity.RESULT_OK_DELETE) {
                 val idx = data!!.getIntExtra("idx", -1)
-                timetable!!.remove(idx)
+                timetable.remove(idx)
             }
         }
     }
@@ -109,16 +109,16 @@ class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragmen
     }
 
     private fun loadSavedData() {
-        timetable!!.removeAll()
-        val mPref = PreferenceManager.getDefaultSharedPreferences(context)
+        timetable.removeAll()
+        val mPref = PreferenceManager. getDefaultSharedPreferences(context)
         val savedData = mPref.getString("timetable_demo", "")
         if (savedData == null || savedData == "") return
-        timetable!!.load(savedData)
+        timetable.load(savedData)
         Toast.makeText(context, "loaded!", Toast.LENGTH_SHORT).show()
     }
 
     private fun checkContinueCourse() {
-        val tempSchedule = timetable!!.allSchedulesInStickers
+        val tempSchedule = timetable.allSchedulesInStickers
         sortSchedules(tempSchedule)
         var startPlace: String
         var endPlace: String

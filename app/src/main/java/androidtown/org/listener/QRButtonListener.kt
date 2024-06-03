@@ -15,7 +15,6 @@ import com.google.gson.JsonParser
 class QRButtonListener(private val welcome: LinearLayout, private val timetable: Button, private val grade: Button, private val qr: Button, private val setting: Button, private val fragmentManager: FragmentManager, private val dataWebView1: WebView, private val dataWebView2: WebView) : View.OnClickListener, WebDataListener {
     val student: Student = Student()
 
-
     override fun receive(data: String?, type: DataType?) {
         when (type) {
             DataType.DEPARTMENT -> {

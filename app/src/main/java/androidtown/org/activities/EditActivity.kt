@@ -18,22 +18,22 @@ import com.github.tlaabs.timetableview.Schedule
 import com.github.tlaabs.timetableview.Time
 
 class EditActivity : AppCompatActivity(), View.OnClickListener {
-    private var context: Context? = null
+    private lateinit var context: Context
 
-    private var deleteBtn: Button? = null
-    private var submitBtn: Button? = null
-    private var subjectEdit: EditText? = null
-    private var classroomEdit: EditText? = null
-    private var professorEdit: EditText? = null
-    private var daySpinner: Spinner? = null
-    private var startTv: TextView? = null
-    private var endTv: TextView? = null
+    private lateinit var deleteBtn: Button
+    private lateinit var submitBtn: Button
+    private lateinit var subjectEdit: EditText
+    private lateinit var classroomEdit: EditText
+    private lateinit var professorEdit: EditText
+    private lateinit var daySpinner: Spinner
+    private lateinit var startTv: TextView
+    private lateinit var endTv: TextView
 
     //request mode
     private var mode = 0
-
-    private var schedule: Schedule? = null
     private var editIdx = 0
+
+    private lateinit var schedule: Schedule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +54,8 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
 
         //set the default time
         schedule = Schedule()
-        schedule!!.startTime = Time(10, 0)
-        schedule!!.endTime = Time(13, 30)
+        schedule.startTime = Time(10, 0)
+        schedule.endTime = Time(13, 30)
 
         checkMode()
         initView()
@@ -68,45 +68,45 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
 
         if (mode == FragmentTimeTable.REQUEST_EDIT) {
             loadScheduleData()
-            deleteBtn!!.visibility = View.VISIBLE
+            deleteBtn.visibility = View.VISIBLE
         }
     }
 
     private fun initView() {
-        submitBtn!!.setOnClickListener(this)
-        deleteBtn!!.setOnClickListener(this)
+        submitBtn.setOnClickListener(this)
+        deleteBtn.setOnClickListener(this)
 
-        daySpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        daySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 //position 0: Mon, 1: Tue, 2: Wed, 3: Thu, 4: Fri
-                schedule!!.day = position
+                schedule.day = position
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
-        startTv!!.setOnClickListener(object : View.OnClickListener {
+        startTv.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
-                val dialog = TimePickerDialog(context, listener, schedule!!.startTime.hour, schedule!!.startTime.minute, false)
+                val dialog = TimePickerDialog(context, listener, schedule.startTime.hour, schedule.startTime.minute, false)
                 dialog.show()
             }
 
             private val listener = OnTimeSetListener { _, hourOfDay, minute ->
-                startTv!!.text = "$hourOfDay:$minute"
-                schedule!!.startTime.hour = hourOfDay
-                schedule!!.startTime.minute = minute
+                startTv.text = "$hourOfDay:$minute"
+                schedule.startTime.hour = hourOfDay
+                schedule.startTime.minute = minute
             }
         })
-        endTv!!.setOnClickListener(object : View.OnClickListener {
+        endTv.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
-                val dialog = TimePickerDialog(context, listener, schedule!!.endTime.hour, schedule!!.endTime.minute, false)
+                val dialog = TimePickerDialog(context, listener, schedule.endTime.hour, schedule.endTime.minute, false)
                 dialog.show()
             }
 
             private val listener = OnTimeSetListener { _, hourOfDay, minute ->
-                endTv!!.text = "$hourOfDay:$minute"
-                schedule!!.endTime.hour = hourOfDay
-                schedule!!.endTime.minute = minute
+                endTv.text = "$hourOfDay:$minute"
+                schedule.endTime.hour = hourOfDay
+                schedule.endTime.minute = minute
             }
         })
     }
@@ -145,16 +145,16 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
         editIdx = i.getIntExtra("idx", -1)
         val schedules = i.getSerializableExtra("schedules") as ArrayList<Schedule>?
         schedule = schedules!![0]
-        subjectEdit!!.setText(schedule!!.classTitle)
-        classroomEdit!!.setText(schedule!!.classPlace)
-        professorEdit!!.setText(schedule!!.professorName)
-        daySpinner!!.setSelection(schedule!!.day)
+        subjectEdit.setText(schedule.classTitle)
+        classroomEdit.setText(schedule.classPlace)
+        professorEdit.setText(schedule.professorName)
+        daySpinner.setSelection(schedule.day)
     }
 
     private fun inputDataProcessing() {
-        schedule!!.classTitle = subjectEdit!!.text.toString()
-        schedule!!.classPlace = classroomEdit!!.text.toString()
-        schedule!!.professorName = professorEdit!!.text.toString()
+        schedule.classTitle = subjectEdit.text.toString()
+        schedule.classPlace = classroomEdit.text.toString()
+        schedule.professorName = professorEdit.text.toString()
     }
 
     companion object {
