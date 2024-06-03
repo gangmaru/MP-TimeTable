@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragments.fragment_grade"
+    tools:context=".fragments.FragmentGrade"
     android:background="#FFFFFF">
 
     <com.github.mikephil.charting.charts.PieChart
