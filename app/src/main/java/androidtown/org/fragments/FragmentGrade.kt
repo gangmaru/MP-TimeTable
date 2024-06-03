@@ -19,7 +19,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import java.text.DecimalFormat
 
-class fragment_grade(private val listener: GradeButtonListener) : Fragment() {
+class FragmentGrade(private val listener: GradeButtonListener) : Fragment() {
     var pie: PieChart? = null
     private var entries: ArrayList<PieEntry>? = null
     private var set: PieDataSet? = null

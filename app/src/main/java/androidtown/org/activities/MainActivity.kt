@@ -8,7 +8,7 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.LinearLayout
 import androidtown.org.R
-import androidtown.org.fragments.fragment_timetable
+import androidtown.org.fragments.FragmentTimeTable
 import androidtown.org.listener.GradeButtonListener
 import androidtown.org.listener.QRButtonListener
 import androidtown.org.listener.SettingButtonListener
@@ -16,7 +16,6 @@ import androidtown.org.listener.TimeTableButtonListener
 import androidtown.org.listener.WebDataListener
 import androidtown.org.webclient.DataWebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import java.util.Arrays
 import java.util.function.Consumer
 
 class MainActivity : AppCompatActivity() {
@@ -44,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 dataWebView1, dataWebView2, dataWebView3, dataWebView4, dataWebView5, dataWebView6, dataWebView7)
         val gradeButtonListener = GradeButtonListener(welcome, timetable, grade, qr, setting, supportFragmentManager, dataWebView1, dataWebView2)
         val qrButtonListener = QRButtonListener(welcome, timetable, grade, qr, setting, supportFragmentManager, dataWebView1, dataWebView2)
-        val settingButtonListener = SettingButtonListener(welcome, timetable, grade, qr, setting, supportFragmentManager, dataWebView1)
+        val settingButtonListener = SettingButtonListener(welcome, timetable, grade, qr, setting, supportFragmentManager)
 
         //Init fragment
         welcome.visibility = View.GONE
@@ -54,13 +53,13 @@ class MainActivity : AppCompatActivity() {
         setting.setBackgroundColor(Color.parseColor("#004E96"))
         val fragmentManager = supportFragmentManager
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment_timetable(timeTableButtonListener))
+        transaction.replace(R.id.fragment, FragmentTimeTable(timeTableButtonListener))
         transaction.commit()
 
         //DataWebView initialize
         webViewInit(
-                Arrays.asList(dataWebView1, dataWebView2, dataWebView3, dataWebView4, dataWebView5, dataWebView6, dataWebView7),
-                Arrays.asList<WebDataListener>(timeTableButtonListener, gradeButtonListener, qrButtonListener))
+                listOf(dataWebView1, dataWebView2, dataWebView3, dataWebView4, dataWebView5, dataWebView6, dataWebView7),
+                listOf<WebDataListener>(timeTableButtonListener, gradeButtonListener, qrButtonListener))
 
         //Button listeners add
         timetable.setOnClickListener(timeTableButtonListener)
@@ -71,10 +70,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun webViewInit(webViewList: List<WebView>, listenerList: List<WebDataListener>) {
         webViewList.forEach(Consumer { view: WebView ->
-            val settings = view.settings
-            settings.javaScriptEnabled = true
-            settings.setSupportMultipleWindows(true)
-            settings.javaScriptCanOpenWindowsAutomatically = true
+            view.settings.apply {
+                javaScriptEnabled = true
+                setSupportMultipleWindows(true)
+                javaScriptCanOpenWindowsAutomatically = true
+            }
 
             val webViewClient = DataWebViewClient(listenerList)
             view.webViewClient = webViewClient

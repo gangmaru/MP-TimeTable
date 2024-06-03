@@ -2,15 +2,14 @@ package androidtown.org.listener
 
 import android.graphics.Color
 import android.view.View
-import android.webkit.WebView
 import android.widget.Button
 import android.widget.LinearLayout
 import androidtown.org.R
 import androidtown.org.data.type.DataType
-import androidtown.org.fragments.fragment_setting
+import androidtown.org.fragments.FragmentSetting
 import androidx.fragment.app.FragmentManager
 
-class SettingButtonListener(private val welcome: LinearLayout, private val timetable: Button, private val grade: Button, private val qr: Button, private val setting: Button, private val fragmentManager: FragmentManager, dataWebView: WebView?) : View.OnClickListener, WebDataListener {
+class SettingButtonListener(private val welcome: LinearLayout, private val timetable: Button, private val grade: Button, private val qr: Button, private val setting: Button, private val fragmentManager: FragmentManager) : View.OnClickListener, WebDataListener {
     override fun receive(data: String?, type: DataType?) {
     }
 
@@ -22,7 +21,7 @@ class SettingButtonListener(private val welcome: LinearLayout, private val timet
         setting.setBackgroundColor(Color.parseColor("#40A7B5"))
 
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment_setting())
+        transaction.replace(R.id.fragment, FragmentSetting())
         transaction.commit()
     }
 }

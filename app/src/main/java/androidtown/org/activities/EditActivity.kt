@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import androidtown.org.R
-import androidtown.org.fragments.fragment_timetable
+import androidtown.org.fragments.FragmentTimeTable
 import androidx.appcompat.app.AppCompatActivity
 import com.github.tlaabs.timetableview.Schedule
 import com.github.tlaabs.timetableview.Time
@@ -64,9 +64,9 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
     /** check whether the mode is ADD or EDIT  */
     private fun checkMode() {
         val i = intent
-        mode = i.getIntExtra("mode", fragment_timetable.REQUEST_ADD)
+        mode = i.getIntExtra("mode", FragmentTimeTable.REQUEST_ADD)
 
-        if (mode == fragment_timetable.REQUEST_EDIT) {
+        if (mode == FragmentTimeTable.REQUEST_EDIT) {
             loadScheduleData()
             deleteBtn!!.visibility = View.VISIBLE
         }
@@ -91,7 +91,7 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
                 dialog.show()
             }
 
-            private val listener = OnTimeSetListener { view, hourOfDay, minute ->
+            private val listener = OnTimeSetListener { _, hourOfDay, minute ->
                 startTv!!.text = "$hourOfDay:$minute"
                 schedule!!.startTime.hour = hourOfDay
                 schedule!!.startTime.minute = minute
@@ -103,7 +103,7 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
                 dialog.show()
             }
 
-            private val listener = OnTimeSetListener { view, hourOfDay, minute ->
+            private val listener = OnTimeSetListener { _, hourOfDay, minute ->
                 endTv!!.text = "$hourOfDay:$minute"
                 schedule!!.endTime.hour = hourOfDay
                 schedule!!.endTime.minute = minute
@@ -113,7 +113,7 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
         if (v.id == R.id.submit_btn) {
-            if (mode == fragment_timetable.REQUEST_ADD) {
+            if (mode == FragmentTimeTable.REQUEST_ADD) {
                 inputDataProcessing()
                 val i = Intent()
                 val schedules = ArrayList<Schedule?>()
@@ -121,7 +121,7 @@ class EditActivity : AppCompatActivity(), View.OnClickListener {
                 i.putExtra("schedules", schedules)
                 setResult(RESULT_OK_ADD, i)
                 finish()
-            } else if (mode == fragment_timetable.REQUEST_EDIT) {
+            } else if (mode == FragmentTimeTable.REQUEST_EDIT) {
                 inputDataProcessing()
                 val i = Intent()
                 val schedules = ArrayList<Schedule?>()

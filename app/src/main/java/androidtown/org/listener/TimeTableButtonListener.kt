@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidtown.org.R
 import androidtown.org.data.type.DataType
-import androidtown.org.fragments.fragment_timetable
+import androidtown.org.fragments.FragmentTimeTable
 import androidx.fragment.app.FragmentManager
 import com.github.tlaabs.timetableview.Schedule
 import com.github.tlaabs.timetableview.Time
@@ -17,8 +17,7 @@ import java.util.function.Consumer
 
 class TimeTableButtonListener(private val welcome: LinearLayout, private val timetable: Button, private val grade: Button, private val qr: Button, private val setting: Button, private val fragmentManager: FragmentManager,
                               private val dataWebView1: WebView, private val dataWebView2: WebView, private val dataWebView3: WebView, private val dataWebView4: WebView, private val dataWebView5: WebView, private val dataWebView6: WebView, private val dataWebView7: WebView) : View.OnClickListener, WebDataListener {
-    private val scheduleSet: MutableSet<Schedule> = HashSet()
-
+    val scheduleSet: MutableSet<Schedule> = HashSet()
 
     override fun receive(data: String?, type: DataType?) {
         if (type != DataType.SCHEDULE) return
@@ -63,12 +62,8 @@ class TimeTableButtonListener(private val welcome: LinearLayout, private val tim
         setting.setBackgroundColor(Color.parseColor("#004E96"))
 
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment_timetable(this))
+        transaction.replace(R.id.fragment, FragmentTimeTable(this))
         transaction.commit()
-    }
-
-    fun getScheduleSet(): Set<Schedule> {
-        return scheduleSet
     }
 
     private fun dayToInt(day: String): Int {

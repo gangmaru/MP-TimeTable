@@ -18,14 +18,10 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class fragment_qr(private val listener: QRButtonListener) : Fragment() {
+class FragmentQR(private val listener: QRButtonListener) : Fragment() {
     private var tvCountdown: TextView? = null
     private var qrCode: ImageView? = null
     private var countDownTimer: CountDownTimer? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_qr, container, false)
@@ -41,12 +37,12 @@ class fragment_qr(private val listener: QRButtonListener) : Fragment() {
             department.text = student.department
             name.text = student.name
             stdNo.text = student.studentNumber
-            qrCode.setImageBitmap(createQRCode())
+            qrCode!!.setImageBitmap(createQRCode())
         }, 500)
         startTimer()
 
         val refreshButton = view.findViewById<Button>(R.id.refresh_btn)
-        refreshButton.setOnClickListener { v: View? -> refreshFragment() }
+        refreshButton.setOnClickListener { refreshFragment() }
 
         return view
     }
@@ -72,7 +68,7 @@ class fragment_qr(private val listener: QRButtonListener) : Fragment() {
             qrCode!!.setImageBitmap(createQRCode())
             startTimer()
         }
-        val ft = fragmentManager!!.beginTransaction()
+        val ft = requireFragmentManager().beginTransaction()
         ft.detach(this).attach(this).commit()
     }
 

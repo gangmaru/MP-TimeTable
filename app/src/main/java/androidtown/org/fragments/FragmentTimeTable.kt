@@ -18,7 +18,7 @@ import com.github.tlaabs.timetableview.Schedule
 import com.github.tlaabs.timetableview.Time
 import com.github.tlaabs.timetableview.TimetableView
 
-class fragment_timetable(private val listener: TimeTableButtonListener) : Fragment(), View.OnClickListener {
+class FragmentTimeTable(private val listener: TimeTableButtonListener) : Fragment(), View.OnClickListener {
     private var context: Context? = null
 
     private var timetable: TimetableView? = null
@@ -50,7 +50,7 @@ class fragment_timetable(private val listener: TimeTableButtonListener) : Fragme
 
         Handler().postDelayed({
             val schedules = ArrayList(listener.scheduleSet)
-            timetable.add(schedules)
+            timetable!!.add(schedules)
             checkContinueCourse()
         }, 500)
 
@@ -104,7 +104,7 @@ class fragment_timetable(private val listener: TimeTableButtonListener) : Fragme
         val mPref = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = mPref.edit()
         editor.putString("timetable_demo", data)
-        editor.commit()
+        editor.apply()
         Toast.makeText(context, "saved!", Toast.LENGTH_SHORT).show()
     }
 
@@ -167,7 +167,7 @@ class fragment_timetable(private val listener: TimeTableButtonListener) : Fragme
                 }
             }
         }
-        if (result.length == 0) Toast.makeText(context, "연강하는데에 지장이 가는 강의가 없습니다.", Toast.LENGTH_LONG).show()
+        if (result.isEmpty()) Toast.makeText(context, "연강하는데에 지장이 가는 강의가 없습니다.", Toast.LENGTH_LONG).show()
         else Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
     }
 
@@ -239,8 +239,8 @@ class fragment_timetable(private val listener: TimeTableButtonListener) : Fragme
     }
 
     private fun sortSchedules(schedules: ArrayList<Schedule>) {
-        schedules.sort(java.util.Comparator<Schedule> { s1: Schedule, s2: Schedule ->
-            val dayComparison = Integer.compare(s1.day, s2.day)
+        schedules.sortWith(java.util.Comparator<Schedule> sort@{ s1: Schedule, s2: Schedule ->
+            val dayComparison = s1.day.compareTo(s2.day)
             if (dayComparison != 0) {
                 return@sort dayComparison
             }
@@ -248,11 +248,11 @@ class fragment_timetable(private val listener: TimeTableButtonListener) : Fragme
             val startTime1 = s1.startTime
             val startTime2 = s2.startTime
 
-            val hourComparison = Integer.compare(startTime1.hour, startTime2.hour)
+            val hourComparison = startTime1.hour.compareTo(startTime2.hour)
             if (hourComparison != 0) {
                 return@sort hourComparison
             }
-            Integer.compare(startTime1.minute, startTime2.minute)
+            startTime1.minute.compareTo(startTime2.minute)
         })
     }
 

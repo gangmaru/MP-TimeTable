@@ -9,7 +9,7 @@ import androidtown.org.R
 import androidtown.org.data.Grade
 import androidtown.org.data.Graduate
 import androidtown.org.data.type.DataType
-import androidtown.org.fragments.fragment_grade
+import androidtown.org.fragments.FragmentGrade
 import androidx.fragment.app.FragmentManager
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
@@ -60,6 +60,8 @@ class GradeButtonListener(private val welcome: LinearLayout, private val timetab
                 graduate.cul6_credit = `object`["cul6_credit"].asInt
                 graduate.culbranch_credit = `object`["culbranch_credit"].asInt
             }
+
+            else -> {}
         }
     }
 
@@ -74,11 +76,7 @@ class GradeButtonListener(private val welcome: LinearLayout, private val timetab
         setting.setBackgroundColor(Color.parseColor("#004E96"))
 
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment_grade(this))
+        transaction.replace(R.id.fragment, FragmentGrade(this))
         transaction.commit()
-    }
-
-    fun getGradeMap(): Map<String, Grade> {
-        return gradeMap
     }
 }

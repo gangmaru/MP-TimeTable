@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import androidtown.org.R
 import androidtown.org.data.Student
 import androidtown.org.data.type.DataType
-import androidtown.org.fragments.fragment_qr
+import androidtown.org.fragments.FragmentQR
 import androidx.fragment.app.FragmentManager
 import com.google.gson.JsonParser
 
@@ -37,6 +37,8 @@ class QRButtonListener(private val welcome: LinearLayout, private val timetable:
                 student.name = name
                 student.studentNumber = studentNumber
             }
+
+            else -> {}
         }
     }
 
@@ -54,7 +56,7 @@ class QRButtonListener(private val welcome: LinearLayout, private val timetable:
         setting.setBackgroundColor(Color.parseColor("#004E96"))
 
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment_qr(this))
+        transaction.replace(R.id.fragment, FragmentQR(this))
         transaction.commit()
     }
 }
