@@ -1,32 +1,27 @@
-package androidtown.org.activities;
+package androidtown.org.activities
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import androidtown.org.R
+import androidtown.org.webclient.LoginWebViewClient
+import androidx.appcompat.app.AppCompatActivity
 
-import android.os.Bundle;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+class LoginActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
 
-import androidtown.org.R;
-import androidtown.org.webclient.LoginWebViewClient;
+        val loginWebView = findViewById<WebView>(R.id.loginWebView)
+        val settings = loginWebView.settings
+        settings.javaScriptEnabled = true
+        settings.setSupportMultipleWindows(true)
+        settings.javaScriptCanOpenWindowsAutomatically = true
 
-public class LoginActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        WebView loginWebView = findViewById(R.id.loginWebView);
-        WebSettings settings = loginWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setSupportMultipleWindows(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
-
-        loginWebView.setWebViewClient(new LoginWebViewClient(this));
-        loginWebView.setWebChromeClient(new WebChromeClient());
+        loginWebView.webViewClient = LoginWebViewClient(this)
+        loginWebView.webChromeClient = WebChromeClient()
 
         //학사 행정 포털 로그인 -> 로그인 과정 위탁
-        loginWebView.loadUrl("https://sso.gachon.ac.kr/svc/tk/Auth.do?ac=Y&ifa=N&id=portal&");
+        loginWebView.loadUrl("https://sso.gachon.ac.kr/svc/tk/Auth.do?ac=Y&ifa=N&id=portal&")
     }
 }

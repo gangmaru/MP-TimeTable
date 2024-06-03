@@ -1,105 +1,94 @@
-package androidtown.org.fragments;
+package androidtown.org.fragments
 
-import android.graphics.Color;
-import android.os.Bundle;
+import android.graphics.Color
+import android.os.Bundle
+import android.os.Handler
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidtown.org.R
+import androidtown.org.listener.GradeButtonListener
+import androidx.fragment.app.Fragment
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
+import java.text.DecimalFormat
 
-import androidx.fragment.app.Fragment;
+class fragment_grade(private val listener: GradeButtonListener) : Fragment() {
+    var pie: PieChart? = null
+    private var entries: ArrayList<PieEntry>? = null
+    private var set: PieDataSet? = null
+    private var data: PieData? = null
 
-import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.github.mikephil.charting.animation.Easing;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-
-import androidtown.org.R;
-import androidtown.org.data.Graduate;
-import androidtown.org.listener.GradeButtonListener;
-
-public class fragment_grade extends Fragment {
-    PieChart pie;
-    private ArrayList<PieEntry> entries;
-    private PieDataSet set;
-    private PieData data;
-    private final GradeButtonListener listener;
-
-    public fragment_grade(GradeButtonListener gradeButtonListener) {
-        this.listener = gradeButtonListener;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_grade, container, false)
+
+        pie = view.findViewById(R.id.pie_chart)
+        Handler().postDelayed({
+            setData()
+            setUpData()
+        }, 500)
+
+        return view
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_grade, container, false);
+    fun setData() {
+        val graduate = listener.graduate
+        entries = ArrayList()
+        entries!!.add(PieEntry(graduate.majbas_credit.toFloat(), "전공필수"))
+        entries!!.add(PieEntry(graduate.majsel_credit.toFloat(), "전공선택"))
+        entries!!.add(PieEntry(graduate.culess_credit.toFloat(), "교양필수"))
+        entries!!.add(PieEntry(graduate.comb_cul_tot_credit.toFloat(), "취득영역 소계"))
+        entries!!.add(PieEntry(graduate.culbranch_credit.toFloat(), "계열 교양"))
 
-        pie = view.findViewById(R.id.pie_chart);
-        new Handler().postDelayed(() -> {
-            setData();
-            setUpData();
-        }, 300);
+        set = PieDataSet(entries, "")
+        set!!.setColors(*ColorTemplate.JOYFUL_COLORS)
+        set!!.selectionShift = 3f
 
-        return view;
-    }
-
-    public void setData() {
-        Graduate graduate = listener.getGraduate();
-        entries = new ArrayList<>();
-        entries.add(new PieEntry(graduate.getMajbas_credit(), "전공필수"));
-        entries.add(new PieEntry(graduate.getMajsel_credit(), "전공선택"));
-        entries.add(new PieEntry(graduate.getCuless_credit(), "교양필수"));
-        entries.add(new PieEntry(graduate.getComb_cul_tot_credit(), "취득영역 소계"));
-        entries.add(new PieEntry(graduate.getCulbranch_credit(), "계열 교양"));
-
-        set = new PieDataSet(entries, "");
-        set.setColors(ColorTemplate.JOYFUL_COLORS);
-        set.setSelectionShift(3f);
-
-        data = new PieData(set);
-        data.setValueTextSize(12f);
-        data.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return String.format("%d", (int) value);
+        data = PieData(set)
+        data!!.setValueTextSize(12f)
+        data!!.setValueFormatter(object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return String.format("%d", value.toInt())
             }
-        });
+        })
     }
 
-    public void setUpData() {
-        pie.setData(data);
-        pie.setEntryLabelColor(Color.BLACK);
-        pie.getDescription().setEnabled(false);
+    fun setUpData() {
+        pie!!.data = data
+        pie!!.setEntryLabelColor(Color.BLACK)
+        pie!!.description.isEnabled = false
         //pie.setUsePercentValues(true);
-        pie.animateY(2000, Easing.EaseInOutQuad);
+        pie!!.animateY(2000, Easing.EaseInOutQuad)
 
-        Legend legend = pie.getLegend();
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        val legend = pie!!.legend
+        legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
 
-        pie.setCenterText("취득학점\n" + new DecimalFormat("###").format(getSum()));
-        pie.setCenterTextSize(30f);
+        pie!!.centerText = """
+             취득학점
+             ${DecimalFormat("###").format(sum.toLong())}
+             """.trimIndent()
+        pie!!.setCenterTextSize(30f)
 
-        pie.invalidate();
+        pie!!.invalidate()
     }
 
-    private int getSum() {
-        int sum = 0;
-        for (int i = 0; i < entries.size(); i++) {
-            sum += entries.get(i).getValue();
+    private val sum: Int
+        get() {
+            var sum = 0
+            for (i in entries!!.indices) {
+                sum = (sum + entries!![i].value).toInt()
+            }
+            return sum
         }
-        return sum;
-    }
 }

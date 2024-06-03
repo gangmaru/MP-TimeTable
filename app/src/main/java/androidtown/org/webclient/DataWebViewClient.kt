@@ -1,47 +1,35 @@
-package androidtown.org.webclient;
+package androidtown.org.webclient
 
-import android.util.Log;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-
-import java.util.List;
-
-import androidtown.org.data.type.DataType;
-import androidtown.org.listener.WebDataListener;
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidtown.org.data.type.DataType
+import androidtown.org.listener.WebDataListener
+import java.util.function.Consumer
 
 /*
 This class isn't thread-safe.
 DO NOT use in async environment.
 */
-public class DataWebViewClient extends WebViewClient {
+class DataWebViewClient(private val listenerList: List<WebDataListener>) : WebViewClient() {
+    private val types = DataType.entries.toTypedArray()
+    private var loadedType: DataType? = null
 
-    private final DataType[] types = DataType.values();
-    private final List<WebDataListener> listenerList;
-    private DataType loadedType = null;
+    override fun onPageFinished(view: WebView, url: String) {
+        super.onPageFinished(view, url)
 
-    public DataWebViewClient(List<WebDataListener> listenerList) {
-        this.listenerList = listenerList;
-    }
-
-    @Override
-    public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
-
-        loadedType = null;
-        for (DataType type : types) {
-            if (url.contains(type.getUrlNum())) {
-                loadedType = type;
-                break;
+        loadedType = null
+        for (type in types) {
+            if (url.contains(type.urlNum)) {
+                loadedType = type
+                break
             }
         }
-        if (loadedType != null)
-            view.loadUrl("javascript:window.Android.getHTML(document.getElementsByTagName('body')[0].innerHTML);");
+        if (loadedType != null) view.loadUrl("javascript:window.Android.getHTML(document.getElementsByTagName('body')[0].innerHTML);")
     }
 
     @JavascriptInterface
-    public void getHTML(String html) {
-        listenerList.forEach(listener -> listener.receive(html, loadedType));
+    fun getHTML(html: String?) {
+        listenerList.forEach(Consumer { listener: WebDataListener -> listener.receive(html, loadedType) })
     }
-
 }

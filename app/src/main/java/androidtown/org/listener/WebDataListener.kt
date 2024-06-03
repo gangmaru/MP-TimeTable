@@ -1,7 +1,7 @@
-package androidtown.org.listener;
+package androidtown.org.listener
 
-import androidtown.org.data.type.DataType;
+import androidtown.org.data.type.DataType
 
-public interface WebDataListener {
-    void receive(String data, DataType type);
+interface WebDataListener {
+    fun receive(data: String?, type: DataType?)
 }

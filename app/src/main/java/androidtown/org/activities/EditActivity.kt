@@ -1,180 +1,165 @@
-package androidtown.org.activities;
+package androidtown.org.activities
 
-import android.app.TimePickerDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.TimePicker;
+import android.app.TimePickerDialog
+import android.app.TimePickerDialog.OnTimeSetListener
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.TextView
+import androidtown.org.R
+import androidtown.org.fragments.fragment_timetable
+import androidx.appcompat.app.AppCompatActivity
+import com.github.tlaabs.timetableview.Schedule
+import com.github.tlaabs.timetableview.Time
 
-import androidx.appcompat.app.AppCompatActivity;
+class EditActivity : AppCompatActivity(), View.OnClickListener {
+    private var context: Context? = null
 
-import com.github.tlaabs.timetableview.Schedule;
-import com.github.tlaabs.timetableview.Time;
-
-import java.util.ArrayList;
-
-import androidtown.org.R;
-import androidtown.org.fragments.fragment_timetable;
-
-public class EditActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final int RESULT_OK_ADD = 1;
-    public static final int RESULT_OK_EDIT = 2;
-    public static final int RESULT_OK_DELETE = 3;
-
-    private Context context;
-
-    private Button deleteBtn;
-    private Button submitBtn;
-    private EditText subjectEdit;
-    private EditText classroomEdit;
-    private EditText professorEdit;
-    private Spinner daySpinner;
-    private TextView startTv;
-    private TextView endTv;
+    private var deleteBtn: Button? = null
+    private var submitBtn: Button? = null
+    private var subjectEdit: EditText? = null
+    private var classroomEdit: EditText? = null
+    private var professorEdit: EditText? = null
+    private var daySpinner: Spinner? = null
+    private var startTv: TextView? = null
+    private var endTv: TextView? = null
 
     //request mode
-    private int mode;
+    private var mode = 0
 
-    private Schedule schedule;
-    private int editIdx;
+    private var schedule: Schedule? = null
+    private var editIdx = 0
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit);
-        init();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_edit)
+        init()
     }
 
-    private void init(){
-        this.context = this;
-        deleteBtn = findViewById(R.id.delete_btn);
-        submitBtn = findViewById(R.id.submit_btn);
-        subjectEdit = findViewById(R.id.subject_edit);
-        classroomEdit = findViewById(R.id.classroom_edit);
-        professorEdit = findViewById(R.id.professor_edit);
-        daySpinner = findViewById(R.id.day_spinner);
-        startTv = findViewById(R.id.start_time);
-        endTv = findViewById(R.id.end_time);
+    private fun init() {
+        this.context = this
+        deleteBtn = findViewById(R.id.delete_btn)
+        submitBtn = findViewById(R.id.submit_btn)
+        subjectEdit = findViewById(R.id.subject_edit)
+        classroomEdit = findViewById(R.id.classroom_edit)
+        professorEdit = findViewById(R.id.professor_edit)
+        daySpinner = findViewById(R.id.day_spinner)
+        startTv = findViewById(R.id.start_time)
+        endTv = findViewById(R.id.end_time)
 
         //set the default time
-        schedule = new Schedule();
-        schedule.setStartTime(new Time(10,0));
-        schedule.setEndTime(new Time(13,30));
+        schedule = Schedule()
+        schedule!!.startTime = Time(10, 0)
+        schedule!!.endTime = Time(13, 30)
 
-        checkMode();
-        initView();
+        checkMode()
+        initView()
     }
 
-    /** check whether the mode is ADD or EDIT */
-    private void checkMode(){
-        Intent i = getIntent();
-        mode = i.getIntExtra("mode", fragment_timetable.REQUEST_ADD);
+    /** check whether the mode is ADD or EDIT  */
+    private fun checkMode() {
+        val i = intent
+        mode = i.getIntExtra("mode", fragment_timetable.REQUEST_ADD)
 
-        if(mode == fragment_timetable.REQUEST_EDIT){
-            loadScheduleData();
-            deleteBtn.setVisibility(View.VISIBLE);
+        if (mode == fragment_timetable.REQUEST_EDIT) {
+            loadScheduleData()
+            deleteBtn!!.visibility = View.VISIBLE
         }
     }
-    private void initView(){
-        submitBtn.setOnClickListener(this);
-        deleteBtn.setOnClickListener(this);
 
-        daySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    private fun initView() {
+        submitBtn!!.setOnClickListener(this)
+        deleteBtn!!.setOnClickListener(this)
+
+        daySpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 //position 0: Mon, 1: Tue, 2: Wed, 3: Thu, 4: Fri
-                schedule.setDay(position);
+                schedule!!.day = position
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            override fun onNothingSelected(parent: AdapterView<*>?) {
             }
-        });
-        startTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TimePickerDialog dialog = new TimePickerDialog(context,listener,schedule.getStartTime().getHour(), schedule.getStartTime().getMinute(), false);
-                dialog.show();
+        }
+        startTv!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View) {
+                val dialog = TimePickerDialog(context, listener, schedule!!.startTime.hour, schedule!!.startTime.minute, false)
+                dialog.show()
             }
 
-            private TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    startTv.setText(hourOfDay + ":" + minute);
-                    schedule.getStartTime().setHour(hourOfDay);
-                    schedule.getStartTime().setMinute(minute);
-                }
-            };
-        });
-        endTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TimePickerDialog dialog = new TimePickerDialog(context,listener,schedule.getEndTime().getHour(), schedule.getEndTime().getMinute(), false);
-                dialog.show();
+            private val listener = OnTimeSetListener { view, hourOfDay, minute ->
+                startTv!!.text = "$hourOfDay:$minute"
+                schedule!!.startTime.hour = hourOfDay
+                schedule!!.startTime.minute = minute
+            }
+        })
+        endTv!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View) {
+                val dialog = TimePickerDialog(context, listener, schedule!!.endTime.hour, schedule!!.endTime.minute, false)
+                dialog.show()
             }
 
-            private TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    endTv.setText(hourOfDay + ":" + minute);
-                    schedule.getEndTime().setHour(hourOfDay);
-                    schedule.getEndTime().setMinute(minute);
-                }
-            };
-        });
+            private val listener = OnTimeSetListener { view, hourOfDay, minute ->
+                endTv!!.text = "$hourOfDay:$minute"
+                schedule!!.endTime.hour = hourOfDay
+                schedule!!.endTime.minute = minute
+            }
+        })
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.submit_btn) {
+    override fun onClick(v: View) {
+        if (v.id == R.id.submit_btn) {
             if (mode == fragment_timetable.REQUEST_ADD) {
-                inputDataProcessing();
-                Intent i = new Intent();
-                ArrayList<Schedule> schedules = new ArrayList<Schedule>();
-                schedules.add(schedule);
-                i.putExtra("schedules", schedules);
-                setResult(RESULT_OK_ADD, i);
-                finish();
+                inputDataProcessing()
+                val i = Intent()
+                val schedules = ArrayList<Schedule?>()
+                schedules.add(schedule)
+                i.putExtra("schedules", schedules)
+                setResult(RESULT_OK_ADD, i)
+                finish()
             } else if (mode == fragment_timetable.REQUEST_EDIT) {
-                inputDataProcessing();
-                Intent i = new Intent();
-                ArrayList<Schedule> schedules = new ArrayList<Schedule>();
-                schedules.add(schedule);
-                i.putExtra("idx", editIdx);
-                i.putExtra("schedules", schedules);
-                setResult(RESULT_OK_EDIT, i);
-                finish();
+                inputDataProcessing()
+                val i = Intent()
+                val schedules = ArrayList<Schedule?>()
+                schedules.add(schedule)
+                i.putExtra("idx", editIdx)
+                i.putExtra("schedules", schedules)
+                setResult(RESULT_OK_EDIT, i)
+                finish()
             }
-        } else if (v.getId() == R.id.delete_btn) {
-            Intent i = new Intent();
-            i.putExtra("idx", editIdx);
-            setResult(RESULT_OK_DELETE, i);
-            finish();
+        } else if (v.id == R.id.delete_btn) {
+            val i = Intent()
+            i.putExtra("idx", editIdx)
+            setResult(RESULT_OK_DELETE, i)
+            finish()
         }
     }
 
 
-    private void loadScheduleData(){
-        Intent i = getIntent();
-        editIdx = i.getIntExtra("idx",-1);
-        ArrayList<Schedule> schedules = (ArrayList<Schedule>)i.getSerializableExtra("schedules");
-        schedule = schedules.get(0);
-        subjectEdit.setText(schedule.getClassTitle());
-        classroomEdit.setText(schedule.getClassPlace());
-        professorEdit.setText(schedule.getProfessorName());
-        daySpinner.setSelection(schedule.getDay());
+    private fun loadScheduleData() {
+        val i = intent
+        editIdx = i.getIntExtra("idx", -1)
+        val schedules = i.getSerializableExtra("schedules") as ArrayList<Schedule>?
+        schedule = schedules!![0]
+        subjectEdit!!.setText(schedule!!.classTitle)
+        classroomEdit!!.setText(schedule!!.classPlace)
+        professorEdit!!.setText(schedule!!.professorName)
+        daySpinner!!.setSelection(schedule!!.day)
     }
 
-    private void inputDataProcessing(){
-        schedule.setClassTitle(subjectEdit.getText().toString());
-        schedule.setClassPlace(classroomEdit.getText().toString());
-        schedule.setProfessorName(professorEdit.getText().toString());
+    private fun inputDataProcessing() {
+        schedule!!.classTitle = subjectEdit!!.text.toString()
+        schedule!!.classPlace = classroomEdit!!.text.toString()
+        schedule!!.professorName = professorEdit!!.text.toString()
+    }
+
+    companion object {
+        const val RESULT_OK_ADD: Int = 1
+        const val RESULT_OK_EDIT: Int = 2
+        const val RESULT_OK_DELETE: Int = 3
     }
 }
