@@ -15,9 +15,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.github.tlaabs.timetableview.Schedule;
+import com.github.tlaabs.timetableview.Time;
 import com.github.tlaabs.timetableview.TimetableView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -167,5 +170,220 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         if (savedData == null || savedData.equals("")) return;
         timetable.load(savedData);
         Toast.makeText(context, "loaded!", Toast.LENGTH_SHORT).show();
+    }
+    private void checkContinueCourse(){
+        ArrayList<Schedule> tempSchedule = timetable.getAllSchedulesInStickers();
+        sortSchedules(tempSchedule);
+        boolean checkValid = false;
+        String startPlace, endPlace, sDay, result;
+        result = "";
+        int day;
+        for (int i = 0; i < tempSchedule.size(); i++){
+            for (int j = i; j < tempSchedule.size(); j++){
+                day = tempSchedule.get(i).getDay();
+                switch (day){
+                    case 0:
+                        sDay = "월요일";
+                        break;
+                    case 1:
+                        sDay = "화요일";
+                        break;
+                    case 2:
+                        sDay = "수요일";
+                        break;
+                    case 3:
+                        sDay = "목요일";
+                        break;
+                    case 4:
+                        sDay = "금요일";
+                        break;
+                    default:
+                        sDay = "";
+                        break;
+
+                }
+                if (day == tempSchedule.get(j).getDay()){
+                    // 먼저 듣는 강의를 먼저 등록한 경우
+                    // i: 먼저 듣는 강의, j: i 다음 들을 강의
+                    if (checkTime(tempSchedule.get(i).getEndTime(), tempSchedule.get(j).getStartTime())){
+                        // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
+                        try{
+                            startPlace = tempSchedule.get(i).getClassPlace().substring(0, tempSchedule.get(i).getClassPlace().indexOf("-"));
+                        }
+                        //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
+                        catch (Exception e){
+                            startPlace = tempSchedule.get(i).getClassPlace();
+                        }
+
+                        // 강의 장소에서 "-"을 기준으로 건물 이름만 따오기
+                        try{
+                            endPlace = tempSchedule.get(j).getClassPlace().substring(0, tempSchedule.get(j).getClassPlace().indexOf("-"));
+                        }
+                        //"화상강의강의실"의 경우 "-"가 없기에 예외 처리
+                        catch (Exception e){
+                            endPlace = tempSchedule.get(j).getClassPlace();
+                        }
+                        if (!checkPlaceAvailable(startPlace, endPlace)){
+                            result = result + sDay + "에 듣는 " + tempSchedule.get(i).getClassTitle() + "과(와) "+ tempSchedule.get(j).getClassTitle()
+                                    + "은(는) 연강이 불가능합니다.\n";
+                        }
+                    }
+                }
+            }
+        }
+        if (result.isEmpty())
+            Toast.makeText(context, "연강하는데에 지장이 가는 강의가 없습니다.", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+    }
+    private boolean checkTime(Time a, Time b){
+        Integer x1 = a.getHour();
+        Integer x2 = a.getMinute();
+        int y1 = b.getHour();
+        int y2 = b.getMinute();
+        if (x1.equals(y1 - 1)){
+            if (x2.equals(y2 + 50))
+                return true;
+        }
+        return false;
+    }
+    private boolean checkPlaceAvailable(String start, String end){
+        int istart, iend;
+        // placeTable[출발 장소][도착 장소] 연강 가능 여부 (카카오맵 기준 도보 8분 이상일 경우 false 처리했습니다.)
+        boolean[][] placeTable = {{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true},
+                {true, true, false, false, false, false, false, false, false, false, false, false, false, false, false},
+                {true, false, true, false, true, true, true, true, true, true, true, true, true, true, true},
+                {true, false, false, true, true, true, false, true, true, true, true, true, true, true, true},
+                {true, false, true, true, true, true, false, true, false, true, false, true, true, true, false},
+                {true, false, true, true, true, true, true, true, false, true, false, true, true, true, true},
+                {true, false, true, false, false, true, true, true, true, true, true, true, false, false, true},
+                {true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
+                {true, false, true, true, false, false, true, true, true, true, true, false, false, false, true},
+                {true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
+                {true, false, true, true, false, false, true, true, true, true, true, false, false, false, true},
+                {true, false, true, true, true, true, true, true, false, true, false, true, true, true, false},
+                {true, false, true, true, true, true, false, true, false, true, false, true, true, true, false},
+                {true, false, true, true, true, true, false, true, false, true, false, true, true, true, false},
+                {true, false, true, true, false, true, true, true, true, true, true, false, false, false, true}};
+        switch (start) {
+            case "화상강의강의실(가상)":
+                istart = 0;
+                break;
+            case "AI관":
+                istart = 1;
+                break;
+            case "반도체대학":
+                istart = 2;
+                break;
+            case "교육대학원":
+                istart = 3;
+                break;
+            case "대학원":
+                istart = 4;
+                break;
+            case "글로벌센터":
+                istart = 5;
+                break;
+            case "비전타워":
+                istart = 6;
+                break;
+            case "가천관":
+                istart = 7;
+                break;
+            case "산학협력관":
+                istart = 8;
+                break;
+            case "공과대학1":
+                istart = 9;
+                break;
+            case "공과대학2":
+                istart = 10;
+                break;
+            case "예술대학1":
+                istart = 11;
+                break;
+            case "예술대학2":
+                istart = 12;
+                break;
+            case "바이오나노대학":
+                istart = 13;
+                break;
+            case "한의과대학":
+                istart = 14;
+                break;
+            default:
+                return true;
+        }
+        switch (end) {
+            case "화상강의강의실(가상)":
+                iend = 0;
+                break;
+            case "AI관":
+                iend = 1;
+                break;
+            case "반도체대학":
+                iend = 2;
+                break;
+            case "교육대학원":
+                iend = 3;
+                break;
+            case "대학원":
+                iend = 4;
+                break;
+            case "글로벌센터":
+                iend = 5;
+                break;
+            case "비전타워":
+                iend = 6;
+                break;
+            case "가천관":
+                iend = 7;
+                break;
+            case "산학협력관":
+                iend = 8;
+                break;
+            case "공과대학1":
+                iend = 9;
+                break;
+            case "공과대학2":
+                iend = 10;
+                break;
+            case "예술대학1":
+                iend = 11;
+                break;
+            case "예술대학2":
+                iend = 12;
+                break;
+            case "바이오나노대학":
+                iend = 13;
+                break;
+            case "한의과대학":
+                iend = 14;
+                break;
+            default:
+                return true;
+        }
+        return placeTable[istart][iend];
+    }
+    private void sortSchedules(ArrayList<Schedule> schedules) {
+        Collections.sort(schedules, new Comparator<Schedule>() {
+            @Override
+            public int compare(Schedule s1, Schedule s2) {
+                int dayComparison = Integer.compare(s1.getDay(), s2.getDay());
+                if (dayComparison != 0) {
+                    return dayComparison;
+                }
+
+                Time startTime1 = s1.getStartTime();
+                Time startTime2 = s2.getStartTime();
+
+                int hourComparison = Integer.compare(startTime1.getHour(), startTime2.getHour());
+                if (hourComparison != 0) {
+                    return hourComparison;
+                }
+
+                return Integer.compare(startTime1.getMinute(), startTime2.getMinute());
+            }
+        });
     }
 }
