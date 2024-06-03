@@ -69,6 +69,7 @@ public class fragment_timetable extends Fragment implements View.OnClickListener
         new Handler().postDelayed(() -> {
             ArrayList<Schedule> schedules = new ArrayList<>(listener.getScheduleSet());
             timetable.add(schedules);
+            checkContinueCourse();
         }, 300);
 
         initView();
